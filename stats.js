@@ -122,10 +122,20 @@ config.configFile(process.argv[2], function (config, oldConfig) {
                 this.end();
             });
 
-            graphite.on('error', function(e) {
-                sys.log(e);
-                this.end();
-            });
+            graphite.on('timeout', function() {
+                if (config.debug)
+                    sys.log('Timeout connecting to graphite');
+              });
+
+              graphite.on('close', function(had_error) {
+                if (config.debug && had_error)
+                    sys.log('Closed connection to graphite');
+              });
+
+              graphite.on('error', function(socketException) {
+                if (config.debug)
+                    sys.log('Error connecting to graphite');
+              });
 
         }, flushInterval);
     }
